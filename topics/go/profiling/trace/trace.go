@@ -53,8 +53,8 @@ func main() {
 	n := freq(topic, docs)
 	// n := freqConcurrent(topic, docs)
 	// n := freqConcurrentSem(topic, docs)
-	// n := freqNumCPU(topic, docs)
-	// n := freqNumCPUTasks(topic, docs)
+	// n := freq(topic, docs)
+	// n := freqProcessorsTasks(topic, docs)
 	// n := freqActor(topic, docs)
 
 	log.Printf("Searching %d files, found %s %d times.", len(docs), topic, n)
@@ -70,13 +70,14 @@ func freq(topic string, docs []string) int {
 			log.Printf("Opening Document [%s] : ERROR : %v", doc, err)
 			return 0
 		}
-		defer f.Close()
 
 		data, err := ioutil.ReadAll(f)
 		if err != nil {
+			f.Close()
 			log.Printf("Reading Document [%s] : ERROR : %v", doc, err)
 			return 0
 		}
+		f.Close()
 
 		var d document
 		if err := xml.Unmarshal(data, &d); err != nil {
@@ -120,13 +121,14 @@ func freqConcurrent(topic string, docs []string) int {
 				log.Printf("Opening Document [%s] : ERROR : %v", doc, err)
 				return
 			}
-			defer f.Close()
 
 			data, err := ioutil.ReadAll(f)
 			if err != nil {
+				f.Close()
 				log.Printf("Reading Document [%s] : ERROR : %v", doc, err)
 				return
 			}
+			f.Close()
 
 			var d document
 			if err := xml.Unmarshal(data, &d); err != nil {
@@ -158,7 +160,7 @@ func freqConcurrentSem(topic string, docs []string) int {
 	var wg sync.WaitGroup
 	wg.Add(g)
 
-	ch := make(chan bool, runtime.NumCPU())
+	ch := make(chan bool, runtime.GOMAXPROCS(0))
 
 	for _, doc := range docs {
 		go func(doc string) {
@@ -176,13 +178,14 @@ func freqConcurrentSem(topic string, docs []string) int {
 					log.Printf("Opening Document [%s] : ERROR : %v", doc, err)
 					return
 				}
-				defer f.Close()
 
 				data, err := ioutil.ReadAll(f)
 				if err != nil {
+					f.Close()
 					log.Printf("Reading Document [%s] : ERROR : %v", doc, err)
 					return
 				}
+				f.Close()
 
 				var d document
 				if err := xml.Unmarshal(data, &d); err != nil {
@@ -209,10 +212,10 @@ func freqConcurrentSem(topic string, docs []string) int {
 	return int(found)
 }
 
-func freqNumCPU(topic string, docs []string) int {
+func freqProcessors(topic string, docs []string) int {
 	var found int32
 
-	g := runtime.NumCPU()
+	g := runtime.GOMAXPROCS(0)
 	var wg sync.WaitGroup
 	wg.Add(g)
 
@@ -271,10 +274,10 @@ func freqNumCPU(topic string, docs []string) int {
 	return int(found)
 }
 
-func freqNumCPUTasks(topic string, docs []string) int {
+func freqTasks(topic string, docs []string) int {
 	var found int32
 
-	g := runtime.NumCPU()
+	g := runtime.GOMAXPROCS(0)
 	var wg sync.WaitGroup
 	wg.Add(g)
 
