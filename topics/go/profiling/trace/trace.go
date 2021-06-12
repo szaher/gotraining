@@ -9,7 +9,7 @@ import (
 	"context"
 	"encoding/xml"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"runtime"
@@ -53,7 +53,7 @@ func main() {
 	n := freq(topic, docs)
 	// n := freqConcurrent(topic, docs)
 	// n := freqConcurrentSem(topic, docs)
-	// n := freq(topic, docs)
+	// n := freqProcessors(topic, docs)
 	// n := freqProcessorsTasks(topic, docs)
 	// n := freqActor(topic, docs)
 
@@ -71,13 +71,12 @@ func freq(topic string, docs []string) int {
 			return 0
 		}
 
-		data, err := ioutil.ReadAll(f)
+		data, err := io.ReadAll(f)
+		f.Close()
 		if err != nil {
-			f.Close()
 			log.Printf("Reading Document [%s] : ERROR : %v", doc, err)
 			return 0
 		}
-		f.Close()
 
 		var d document
 		if err := xml.Unmarshal(data, &d); err != nil {
@@ -122,13 +121,12 @@ func freqConcurrent(topic string, docs []string) int {
 				return
 			}
 
-			data, err := ioutil.ReadAll(f)
+			data, err := io.ReadAll(f)
+			f.Close()
 			if err != nil {
-				f.Close()
 				log.Printf("Reading Document [%s] : ERROR : %v", doc, err)
 				return
 			}
-			f.Close()
 
 			var d document
 			if err := xml.Unmarshal(data, &d); err != nil {
@@ -179,13 +177,12 @@ func freqConcurrentSem(topic string, docs []string) int {
 					return
 				}
 
-				data, err := ioutil.ReadAll(f)
+				data, err := io.ReadAll(f)
+				f.Close()
 				if err != nil {
-					f.Close()
 					log.Printf("Reading Document [%s] : ERROR : %v", doc, err)
 					return
 				}
-				f.Close()
 
 				var d document
 				if err := xml.Unmarshal(data, &d); err != nil {
@@ -237,13 +234,12 @@ func freqProcessors(topic string, docs []string) int {
 					return
 				}
 
-				data, err := ioutil.ReadAll(f)
+				data, err := io.ReadAll(f)
+				f.Close()
 				if err != nil {
-					f.Close()
 					log.Printf("Reading Document [%s] : ERROR : %v", doc, err)
 					return
 				}
-				f.Close()
 
 				var d document
 				if err := xml.Unmarshal(data, &d); err != nil {
@@ -274,7 +270,7 @@ func freqProcessors(topic string, docs []string) int {
 	return int(found)
 }
 
-func freqTasks(topic string, docs []string) int {
+func freqProcessorsTasks(topic string, docs []string) int {
 	var found int32
 
 	g := runtime.GOMAXPROCS(0)
@@ -306,13 +302,12 @@ func freqTasks(topic string, docs []string) int {
 					reg.End()
 
 					reg = trace.StartRegion(ctx, "ReadAll")
-					data, err := ioutil.ReadAll(f)
+					data, err := io.ReadAll(f)
+					f.Close()
 					if err != nil {
-						f.Close()
 						log.Printf("Reading Document [%s] : ERROR : %v", doc, err)
 						return
 					}
-					f.Close()
 					reg.End()
 
 					reg = trace.StartRegion(ctx, "Unmarshal")
@@ -367,8 +362,8 @@ func freqActor(topic string, docs []string) int {
 	data := make(chan []byte, 100)
 	go func() {
 		for f := range files {
-			defer f.Close()
-			d, err := ioutil.ReadAll(f)
+			d, err := io.ReadAll(f)
+			f.Close()
 			if err != nil {
 				log.Printf("Reading Document [%s] : ERROR : %v", f.Name(), err)
 				break

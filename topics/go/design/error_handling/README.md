@@ -26,6 +26,7 @@ _Systems cannot be developed assuming that human beings will be able to write mi
 [Errors are handled in return values](https://plus.google.com/+RussCox-rsc/posts/iqAiKAwP6Ce) - Russ Cox    
 [Error handling in Upspin](https://commandcenter.blogspot.com/2017/12/error-handling-in-upspin.html) - Rob Pike    
 [Go 1.13: xerrors](https://crawshaw.io/blog/xerrors) - David Crawshaw  
+[Why Go's Error Handling is Awesome](https://rauljordan.com/2020/07/06/why-go-error-handling-is-awesome.html) - Raul Jordan  
 
 ## Code Review
 
@@ -35,7 +36,8 @@ _Systems cannot be developed assuming that human beings will be able to write mi
 [Behavior As Context](example4/example4.go) ([Go Playground](https://play.golang.org/p/sNRSXKtcJKM))  
 [Find The Bug](example5/example5.go) ([Go Playground](https://play.golang.org/p/CBL-ADH-nSv)) | 
 [The Reason](example5/reason/reason.go) ([Go Playground](https://play.golang.org/p/-f4PPcBGkDU))  
-[Wrapping Errors](example6/example6.go) ([Go Playground](https://play.golang.org/p/Zt1Z5k4HbDG))  
+[Wrapping Errors With pkg/errors](example6/example6.go) ([Go Playground](https://play.golang.org/p/Zt1Z5k4HbDG))  
+[Wrapping Errors With stdlib](example7/example7.go) ([Go Playground](https://play.golang.org/p/f5bw9G7OLog))  
 
 ## Exercises
 
